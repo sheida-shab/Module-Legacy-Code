@@ -1,6 +1,7 @@
 import {state} from "../index.mjs";
 import {handleErrorDialog} from "../components/error.mjs";
 
+
 // === ABOUT THE STATE
 // state gives you these two functions only
 // updateState({stateKey: newValues})
@@ -194,10 +195,16 @@ async function getBloomsByHashtag(hashtag) {
 }
 
 async function postBloom(content) {
+  // Check client-side length first
+  if (content.length>280){
+    handleErrorDialog(new Error("Bloom must be 280 characters or less"));
+    return { success: false };
+
+  }
   try {
     const data = await _apiRequest("/bloom", {
       method: "POST",
-      body: JSON.stringify({content}),
+      body: JSON.stringify({ content }),
     });
 
     if (data.success) {
@@ -208,7 +215,7 @@ async function postBloom(content) {
     return data;
   } catch (error) {
     // Error already handled by _apiRequest
-    return {success: false};
+    return { success: false };
   }
 }
 
