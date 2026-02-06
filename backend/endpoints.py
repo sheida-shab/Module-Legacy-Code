@@ -1,3 +1,4 @@
+from constants import MAX_BLOOM_LENGTH
 from typing import Dict, Union
 from data import blooms
 from data.follows import follow, get_followed_usernames, get_inverse_followed_usernames
@@ -159,8 +160,8 @@ def send_bloom():
     user = get_current_user()
     #  Check server-side length 
     content=request.json["content"]
-    if len(content)>280 :
-        return jsonify({"success": False, "error": "Bloom must be 280 characters or less"}), 400
+    if len(content)>MAX_BLOOM_LENGTH :
+        return jsonify({"success": False, "error": f"Bloom must be {MAX_BLOOM_LENGTH} characters or less"}), 400
 
     blooms.add_bloom(sender=user, content=request.json["content"])
 

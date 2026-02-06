@@ -1,5 +1,7 @@
 import {state} from "../index.mjs";
 import {handleErrorDialog} from "../components/error.mjs";
+import { MAX_BLOOM_LENGTH } from "./constants.mjs";
+
 
 
 // === ABOUT THE STATE
@@ -196,8 +198,10 @@ async function getBloomsByHashtag(hashtag) {
 
 async function postBloom(content) {
   // Check client-side length first
-  if (content.length>280){
-    handleErrorDialog(new Error("Bloom must be 280 characters or less"));
+  if (content.length>MAX_BLOOM_LENGTH){
+    handleErrorDialog(
+      new Error(`Bloom must be ${MAX_BLOOM_LENGTH} characters or less`),
+    );
     return { success: false };
 
   }
