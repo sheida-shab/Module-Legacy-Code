@@ -16,6 +16,7 @@ from flask_jwt_extended import (
 )
 
 from datetime import timedelta
+from data.blooms import get_reblooms_for_user
 
 MINIMUM_PASSWORD_LENGTH = 5
 
@@ -166,6 +167,41 @@ def send_bloom():
         }
     )
 
+@jwt_required()
+def send_rebloom(original_bloom_id):
+    user = get_current_user()
+
+    bloom = blooms.get_bloom(original_bloom_id)
+    if bloom is None:
+        return make_response((f"Bloom not found", 404))
+
+    # Check if already rebloomed
+    if blooms.has_user_rebloomed(original_bloom_id, user.id):
+        return make_response(({"success": False, "message": "Already rebloomed"}, 400))
+
+    # Add rebloom
+    rebloom_id = blooms.add_rebloom(original_bloom_id, user.id)
+
+    return jsonify({"success": True, "rebloom_id": rebloom_id})
+
+from data.blooms import get_blooms_for_user   
+@jwt_required()
+def get_reblooms_for_user_endpoint(username):
+    reblooms = get_reblooms_for_user(username)
+    return jsonify([
+        {
+            "id": r.id,
+            "sender": r.sender, 
+            "content": r.content,
+            "sent_timestamp": str(r.sent_timestamp),
+            "rebloomer": r.rebloomer,  # <-- include the new field
+            "rebloom_count": r.rebloom_count,
+            "last_rebloomed_at": str(r.last_rebloomed_at) if r.last_rebloomed_at else None 
+        }
+        for r in reblooms
+    ])
+
+
 
 def get_bloom(id_str):
     try:
@@ -195,14 +231,22 @@ def home_timeline():
     # Get the current user's own blooms
     own_blooms = blooms.get_blooms_for_user(current_user.username, limit=50)
 
-    # Combine own blooms with followed blooms
-    all_blooms = followed_blooms + own_blooms
+    all_blooms_dict = {bloom.id: bloom for bloom in followed_blooms + own_blooms}
 
+    # Fetch reblooms for the followed users
+    all_reblooms = []
+    for user in followed_users + [current_user.username]:
+        all_reblooms.extend(get_reblooms_for_user(user))
+
+    for r in all_reblooms:
+      if r.id in all_blooms_dict:
+        all_blooms_dict[r.id].rebloomer = r.rebloomer    
+        all_blooms_dict[r.id].rebloom_count = r.rebloom_count
+        all_blooms_dict[r.id].last_rebloomed_at = r.last_rebloomed_at
+
+ 
     # Sort by timestamp (newest first)
-    sorted_blooms = list(
-        sorted(all_blooms, key=lambda bloom: bloom.sent_timestamp, reverse=True)
-    )
-
+    sorted_blooms =sorted(all_blooms_dict.values(), key=lambda b: b.sent_timestamp, reverse=True)
     return jsonify(sorted_blooms)
 
 

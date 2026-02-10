@@ -12,6 +12,7 @@ from endpoints import (
     register,
     self_profile,
     send_bloom,
+    send_rebloom,
     suggested_follows,
     user_blooms,
 )
@@ -42,6 +43,7 @@ def main():
         },
     )
 
+    from endpoints import get_reblooms_for_user_endpoint  
     app.config["JWT_SECRET_KEY"] = os.environ["JWT_SECRET_KEY"]
     jwt = JWTManager(app)
     jwt.user_lookup_loader(lookup_user)
@@ -60,6 +62,13 @@ def main():
     app.add_url_rule("/bloom/<id_str>", methods=["GET"], view_func=get_bloom)
     app.add_url_rule("/blooms/<profile_username>", view_func=user_blooms)
     app.add_url_rule("/hashtag/<hashtag>", view_func=hashtag)
+   
+    # Add rebloom route
+    app.add_url_rule("/rebloom/<int:original_bloom_id>", methods=["POST"], view_func=send_rebloom )
+   
+    # Add route for fetching user reblooms
+    app.add_url_rule("/reblooms/user/<username>", view_func=get_reblooms_for_user_endpoint)
+
 
     app.run(host="0.0.0.0", port="3000", debug=True)
 
