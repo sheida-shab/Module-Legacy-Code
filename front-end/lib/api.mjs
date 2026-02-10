@@ -154,6 +154,8 @@ async function getBlooms(username) {
 
   try {
     const blooms = await _apiRequest(endpoint);
+    console.log("API /home BLOOMS:", blooms);
+
 
     if (username) {
       _updateProfile(username, {blooms});
@@ -170,6 +172,24 @@ async function getBlooms(username) {
       state.updateState({timelineBlooms: []});
     }
     return [];
+  }
+}
+
+async function rebloom(bloomId) {
+  try {
+    const data = await _apiRequest(`/rebloom/${bloomId}`, {
+      method: "POST",
+    });
+
+    if (data.success) {
+      
+      await getBlooms();
+      await getProfile(state.currentUser);
+    }
+
+    return data;
+  } catch (error) {
+    return { success: false };
   }
 }
 
@@ -292,6 +312,7 @@ const apiService = {
   getBlooms,
   postBloom,
   getBloomsByHashtag,
+  rebloom,
 
   // User methods
   getProfile,
