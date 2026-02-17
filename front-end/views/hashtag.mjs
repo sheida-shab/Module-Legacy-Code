@@ -22,17 +22,9 @@ function hashtagView(hashtag) {
 
   const normalizedHashtag = hashtag.startsWith("#") ? hashtag : `#${hashtag}`;
   if (state.currentHashtag !== normalizedHashtag) {
-    // Update state only if the hashtag changed
-    state.currentHashtag = normalizedHashtag;
-   
-    // Fetch blooms for the new hashtag
-    apiService.getBloomsByHashtag(normalizedHashtag).then(()=>{
-      // Check that the hashtag is still current to avoid old data
-      if (state.currentHashtag === normalizedHashtag){
-        // Nothing to do here for now
-      }
-    });
+    apiService.getBloomsByHashtag(normalizedHashtag);
   }
+  
   renderOne(
     state.isLoggedIn,
     getLogoutContainer(),

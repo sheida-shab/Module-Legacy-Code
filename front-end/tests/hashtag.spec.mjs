@@ -24,6 +24,9 @@ test("should not make infinite hashtag endpoint requests", async ({ page }) => {
       response.status() === 200,
   );
 
+  // Give some time to catch repeated requests if they exist
+  await page.waitForTimeout(500);
+
   // ====== ASSERT
   // Then the number of requests should be 1
   console.log("Number of requests:", requests.length);
