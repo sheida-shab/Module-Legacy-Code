@@ -27,6 +27,16 @@ export async function loginAsJustSomeGuy(page) {
 }
 
 /**
+ * Log in on the current page without redirecting
+ * @param {import('@playwright/test').Page} page
+ */
+export async function loginOnCurrentPage(page) {
+  await page.fill('[data-form="login"] input[name="username"]', "sample");
+  await page.fill('[data-form="login"] input[name="password"]', "sosecret");
+  await page.locator('[data-form="login"]').evaluate(form => form.submit());
+}
+
+/**
  * Sign up with generated credentials
  * @param {import('@playwright/test').Page} page
  * @param {string} username - Username to sign up with

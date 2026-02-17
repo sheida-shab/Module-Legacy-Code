@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { loginAsSample, logout } from "./test-utils.mjs";
+import { loginAsSample, logout, loginOnCurrentPage } from "./test-utils.mjs";
 
 test("can visit another user's profile after logout and re-login", async ({
   page,
@@ -14,8 +14,8 @@ test("can visit another user's profile after logout and re-login", async ({
   await logout(page);
 
   // When I log in again
-  await loginAsSample(page);
-
+  //await loginAsSample(page);
+  await loginOnCurrentPage(page);
   // And I visit the same profile again
   await page.goto("/#/profile/AS");
 
