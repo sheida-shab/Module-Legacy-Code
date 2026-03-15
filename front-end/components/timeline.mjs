@@ -23,7 +23,6 @@ function createTimeline(template, blooms) {
   const bloomsFragment = document.createDocumentFragment();
   // Accumulate blooms
   blooms.forEach((bloom) => {
-    console.log("TIMELINE BLOOM:", bloom);
     bloomsFragment.appendChild(createBloomWithRebloom("bloom-template", bloom));
   });
 
@@ -89,14 +88,6 @@ function createBloomWithRebloom(template, bloom) {
     rebloomButton.textContent = "🔄";
     bloomElement.appendChild(rebloomButton);
   }
-
-  // Log for check the data 
-  console.log("REBLOOM DATA:", {
-    id: bloom.id,
-    rebloom_count: bloom.rebloom_count,
-    last_rebloomed_at: bloom.last_rebloomed_at,
-    rebloomer: bloom.rebloomer,
-  });
 
   return bloomElement;
 }

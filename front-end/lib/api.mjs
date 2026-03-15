@@ -154,9 +154,7 @@ async function getBlooms(username) {
 
   try {
     const blooms = await _apiRequest(endpoint);
-    console.log("API /home BLOOMS:", blooms);
-
-
+    
     if (username) {
       _updateProfile(username, {blooms});
     } else {

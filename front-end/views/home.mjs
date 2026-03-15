@@ -23,7 +23,6 @@ import {createBloom} from "../components/bloom.mjs";
 // Home view - logged in or not
 function homeView() {
   destroy();
-console.log("STATE TIMELINE BLOOMS:", state.timelineBlooms);
 
   if (state.isLoggedIn) {
     renderOne(
