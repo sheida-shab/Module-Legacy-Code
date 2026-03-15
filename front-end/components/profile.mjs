@@ -27,20 +27,31 @@ function createProfile(template, {profileData, whoToFollow, isLoggedIn}) {
   followerCountEl.textContent = profileData.followers?.length || 0;
   followingCountEl.textContent = profileData.follows?.length || 0;
   followButtonEl.setAttribute("data-username", profileData.username || "");
-  followButtonEl.hidden = profileData.is_self || profileData.is_following;
-  followButtonEl.addEventListener("click", handleFollow);
+  
+  if (profileData.is_self) {
+     followButtonEl.hidden = true;
+   } else {
+     followButtonEl.hidden = false;
+     followButtonEl.textContent = profileData.is_following
+       ? "Unfollow"
+       : "Follow";
+   }
+
   if (!isLoggedIn) {
     followButtonEl.style.display = "none";
   }
+  followButtonEl.addEventListener("click", handleFollow);
 
   if (whoToFollow.length > 0) {
     const whoToFollowList = whoToFollowContainer.querySelector("[data-who-to-follow]");
     const whoToFollowTemplate = document.querySelector("#who-to-follow-chip");
+
     for (const userToFollow of whoToFollow) {
       const wtfElement = whoToFollowTemplate.content.cloneNode(true);
       const usernameLink = wtfElement.querySelector("a[data-username]");
       usernameLink.innerText = userToFollow.username;
       usernameLink.setAttribute("href", `/profile/${userToFollow.username}`);
+
       const followButton = wtfElement.querySelector("button");
       followButton.setAttribute("data-username", userToFollow.username);
       followButton.addEventListener("click", handleFollow);
@@ -59,11 +70,22 @@ function createProfile(template, {profileData, whoToFollow, isLoggedIn}) {
 
 async function handleFollow(event) {
   const button = event.target;
-  const username = button.getAttribute("data-username");
+  const username = button.dataset.username;
   if (!username) return;
 
-  await apiService.followUser(username);
-  await apiService.getWhoToFollow();
+  const isUnfollowing = button.textContent === "Unfollow";
+
+  try {
+    if (isUnfollowing) {
+      await apiService.unfollowUser(username);
+    } else {
+      await apiService.followUser(username);
+    }
+  
+  } catch (error) {
+    console.error(error);
+  }
 }
+
 
 export {createProfile, handleFollow};
