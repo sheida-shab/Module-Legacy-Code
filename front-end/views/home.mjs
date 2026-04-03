@@ -20,6 +20,33 @@ import {
 } from "../components/bloom-form.mjs";
 import {createBloom} from "../components/bloom.mjs";
 
+function setupRebloomListener() {
+  const container = document.getElementById("timeline-container");
+
+  if (!container) return;
+
+  container.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-action='rebloom']");
+    if (!button) return;
+
+    const bloomElement = button.closest("[data-bloom]");
+    const bloomId = bloomElement?.dataset.bloomId;
+    if (!bloomId) return;
+
+    try {
+      const result = await apiService.rebloom(bloomId);
+
+      if (result.success) {
+        await apiService.getBlooms();
+        await apiService.getProfile(state.currentUser);
+        homeView();
+      }
+    } catch (err) {
+      console.error("Error reblooming:", err);
+    }
+  });
+}
+
 // Home view - logged in or not
 function homeView() {
   destroy();
@@ -44,31 +71,7 @@ function homeView() {
       createBloomWithRebloom,
     );
     
-    // Rebloom button listener (event delegation)
-    document
-      .getElementById("timeline-container")
-      ?.addEventListener("click", async (event) => {
-        const button = event.target.closest("[data-action='rebloom']");
-        if (!button) return;
-
-        const bloomElement = button.closest("[data-bloom]");
-        const bloomId = bloomElement?.dataset.bloomId;
-        if (!bloomId) return;
-
-        try {
-          const result = await apiService.rebloom(bloomId);
-          if (result.success) {
-            // Refresh timeline and profile
-            await apiService.getBlooms();
-            await apiService.getProfile(state.currentUser);
-            // Re-render home view to update UI
-            homeView();
-          }
-        } catch (err) {
-          console.error("Error reblooming:", err);
-        }
-      });
-
+    
     renderOne(
       state.isLoggedIn,
       getBloomFormContainer(),
@@ -101,3 +104,4 @@ function homeView() {
   }
 }
 export {homeView};
+setupRebloomListener();
